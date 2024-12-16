@@ -82,3 +82,7 @@ class UpdateMhsViewModel (
         updateUIState = updateUIState.copy(snackBarMessage = null)
     }
 }
+
+fun Mahasiswa.toUIStateMhs() : MhsUIState= MhsUIState(
+    mahasiswaEvent = this.toDetailUiEvent()
+)
