@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.activity10.ui.costumwidget.TopAppBar
+import com.example.activity10.ui.view.mahasiswa.InsertBodyMhs
 import com.example.activity10.ui.viewmodel.PenyediaViewModel
 import com.example.activity10.ui.viewmodel.UpdateMhsViewModel
 import kotlinx.coroutines.Dispatchers
@@ -48,3 +49,41 @@ fun UpdateMhsView (
             }
         }
     }
+    Scaffold (
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
+        topBar = {
+            TopAppBar(
+                judul = "Edit Mahasiswa",
+                showBackButton = true,
+                onBack = onBack,
+            )
+        }
+    ){ padding ->
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            // Isi Body
+            InsertBodyMhs(
+                uiState = uiState,
+                onValueChange = { updateEvent ->
+                    viewModel.updateState(updateEvent) //Update state di ViewModel
+                },
+                onClick = {
+                    coroutineScope.launch {
+                        if (viewModel.validateFields()) {
+                            viewModel.updateData()
+                            delay(600)
+                            withContext(Dispatchers.Main) {
+                                onNavigate() // Navigasi di main thread
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    }
+}
