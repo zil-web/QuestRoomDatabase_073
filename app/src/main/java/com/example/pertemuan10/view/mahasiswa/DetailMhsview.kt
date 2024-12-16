@@ -1,6 +1,5 @@
 package com.example.activity10.ui.view.mahasiswa
 
-import android.widget.Space
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,12 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.activity10.data.entity.Mahasiswa
-import com.example.activity10.ui.costumwidget.TopAppBar
-import com.example.activity10.ui.viewmodel.DetailMhsViewModel
 import com.example.activity10.ui.viewmodel.DetailUiState
-import com.example.activity10.ui.viewmodel.PenyediaViewModel
 import com.example.activity10.ui.viewmodel.toMahasiswaEntity
 import com.example.pertemuan10.ui.costumWidget.TopAppBar
+import com.example.pertemuan10.viewmodel.DetailMhsViewModel
+import com.example.pertemuan10.viewmodel.DetailUiState
 import com.example.pertemuan10.viewmodel.PenyediaViewModel
 
 @Composable
