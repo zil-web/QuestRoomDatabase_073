@@ -1,4 +1,5 @@
-package com.example.pertemuan10.view.mahasiswa
+package com.example.activity10.ui.view.mahasiswa
+
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,12 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -25,17 +28,101 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pertemuan10.ui.costumWidget.TopAppBar
-import com.example.pertemuan10.viewmodel.FormErrorState
-import com.example.pertemuan10.viewmodel.MahasiswaEvent
+import com.example.activity10.ui.viewmodel.FormErrorState
+import com.example.activity10.ui.viewmodel.MahasiswaEvent
+import com.example.activity10.ui.viewmodel.MhsUIState
+import com.example.pertemuan10.ui.navigasi.AlamatNavigasi
 import com.example.pertemuan10.viewmodel.MahasiswaViewModel
-import com.example.pertemuan10.viewmodel.MhsUIState
 import com.example.pertemuan10.viewmodel.PenyediaViewModel
 import kotlinx.coroutines.launch
-object DestinasiInsert : AlamatNavigasi{
-    override val route: String = "insert_mhs"
 
+object DestinasiInsert : AlamatNavigasi {
+    override val route: String = "insert-mhs"
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InsertMhsView(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    onNavigate: () -> Unit,
+    viewModel: MahasiswaViewModel = viewModel(factory = PenyediaViewModel.Factory) //Inisialisasi ViewModel
+) {
+    val uiState = viewModel.uiState // Ambil UI State dari viewmodel
+    val snackbarHostState =  remember { SnackbarHostState() } // Snack
+    val coroutineScope = rememberCoroutineScope()
+
+    // Observasi perubahan snackBarMessage
+    LaunchedEffect(uiState.snackBarMessage)  {
+        uiState.snackBarMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+                viewModel.resetSnackBarMessage()
+            }
+        }
+    }
+
+    Scaffold(
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)}
+    ) { padding ->
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ){
+            TopAppBar(
+                onBack = onBack,
+                showBackButton = true,
+                judul = "Tambah Mahasiswa"
+            )
+
+            //Isi Body
+            InsertBodyMhs(
+                uiState = uiState,
+                onValueChange = { updateEvent ->
+                    //Update state di viewmodel
+                    viewModel.updateState(updateEvent)
+                },
+                onClick = {
+                    viewModel.saveData()
+                    onNavigate()
+                }
+            )
+
+        }
+
+    }
+}
+
+@Composable
+fun InsertBodyMhs(
+    modifier: Modifier = Modifier,
+    onValueChange: (MahasiswaEvent) -> Unit,
+    uiState: MhsUIState,
+    onClick: () -> Unit
+) {
+    Column (
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        FormMahasiswa(
+            mahasiswaEvent = uiState.mahasiswaEvent,
+            onValueChange = onValueChange,
+            errorState = uiState.isEntryValid,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Simpan")
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun FormMahasiswa(
@@ -58,7 +145,7 @@ fun FormMahasiswa(
             },
             label = { Text("Nama")},
             isError = errorState.nama != null,
-            placeholder = { Text("Masukkan nama")}
+            placeholder = { Text("Masukkan Nama")}
         )
         Text(
             text = errorState.nama ?: "",
@@ -103,7 +190,7 @@ fun FormMahasiswa(
             }
         }
         Text(
-            text = errorState.jeniskelamin ?: "",
+            text = errorState.jenisKelamin ?: "",
             color = Color.Red
         )
 
@@ -164,87 +251,4 @@ fun FormMahasiswa(
             color = Color.Red
         )
     }
-}
-@Composable
-fun InsertMhsView(
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit,
-    onNavigate: () -> Unit,
-    viewModel: MahasiswaViewModel = viewModel(factory = PenyediaViewModel.Factory) //Inisialisasi ViewModel
-) {
-    val uiState = viewModel.uiState // Ambil UI State dari viewmodel
-    val snackbarHostState =  remember { SnackbarHostState() } // Snack
-    val coroutineScope = rememberCoroutineScope()
-
-    // Observasi perubahan snackBarMessage
-    LaunchedEffect(uiState.snackBarMessage)  {
-        uiState.snackBarMessage?.let { message ->
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(message)
-                viewModel.resetSnackBarMessage()
-            }
-        }
-    }
-
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState)}
-    ) { padding ->
-        Column (
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-        ){
-            TopAppBar(
-                onBack = onBack,
-                showBackButton = true,
-                judul = "Tambah Mahasiswa"
-            )
-
-            //Isi Body
-            InsertBodyMhs(
-                uiState = uiState,
-                onValueChange = { updateEvent ->
-                    //Update state di viewmodel
-                    viewModel.updateState(updateEvent)
-                },
-                onClick = {
-                    viewModel.saveData()
-                    onNavigate()
-                }
-            )
-
-            }
-
-        }
-}
-@Composable
-fun InsertBodyMhs(
-    modifier: Modifier = Modifier,
-    onValueChange: (MahasiswaEvent)-> Unit,
-    uiState: MhsUIState,
-    onClick: () -> Unit
-){
-    Column (
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        FormMahasiswa(
-            mahasiswaEvent = uiState.mahasiswaEvent,
-            onValueChange = onValueChange,
-            errorState = uiState.isEntryValid,
-            modifier = modifier.fillMaxWidth()
-        )
-        Button(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("simpan")
-        }
-
-    }
-
-
 }
